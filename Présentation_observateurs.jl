@@ -5,125 +5,18 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 01a49139-b2d9-48a2-b737-7685e6e3ea2a
-begin 
+begin
 	using PlutoUI
 	using HypertextLiteral
-end 
+	using Base64
+end
 
-# ╔═╡ 048e684e-d9df-11f1-8332-71bfd79ee45b
-
-
+# ╔═╡ 94a20083-978e-492b-b056-77ed64687cb5
+# Thème global : tout le CSS de la présentation est défini ici, une seule fois.
 @htl("""
 <style>
-  .slide1-wrapper {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    max-width: 900px;
-    margin: 0 auto;
-    background: #1A1A2E;
-    border-radius: 12px;
-    overflow: hidden;
-    font-family: Calibri, 'Segoe UI', sans-serif;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  }
-
-  .circle-top-right {
-    position: absolute;
-    top: -8%; right: -4%;
-    width: 36%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: rgba(233, 69, 96, 0.18);
-    border: 1.5px solid rgba(233, 69, 96, 0.35);
-  }
-
-  .circle-bottom-right {
-    position: absolute;
-    bottom: -6%; right: 6%;
-    width: 20%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: rgba(15, 52, 96, 0.55);
-    border: 1.5px solid rgba(15, 52, 96, 0.7);
-  }
-
-  .bottom-line {
-    position: absolute;
-    bottom: 10%; left: 0;
-    width: 100%; height: 0.9%;
-    background: #E94560;
-  }
-
-  .slide1-content {
-    position: absolute;
-    top: 18%; left: 5%;
-    width: 75%;
-  }
-
-  .slide1-title {
-    font-size: 3.2vw;
-    font-weight: 700;
-    color: #FFFFFF;
-    line-height: 1.15;
-    margin: 0 0 2.5% 0;
-  }
-
-  .slide1-subtitle {
-    font-size: 1.4vw;
-    color: #AABBCC;
-    margin: 0 0 4% 0;
-  }
-
-  .slide1-divider {
-    width: 18%; height: 0.5%;
-    background: #E94560;
-    margin-bottom: 3%;
-    border-radius: 2px;
-  }
-
-  .slide1-method {
-    font-size: 1.5vw;
-    color: #AABBCC;
-    font-style: italic;
-  }
-
-  .slide1-footer {
-    position: absolute;
-    bottom: 3%; left: 5%;
-    font-size: 1.1vw;
-    color: #556677;
-  }
-
-  .slide1-number {
-    position: absolute;
-    bottom: 3%; right: 2%;
-    font-size: 1.1vw;
-    color: #556677;
-  }
-</style>
-
-<div class="slide1-wrapper">
-  <div class="circle-top-right"></div>
-  <div class="circle-bottom-right"></div>
-  <div class="bottom-line"></div>
-
-  <div class="slide1-content">
-    <h1 class="slide1-title">Estimation Robuste d'État</h1>
-    <p class="slide1-subtitle">pour les Systèmes Dynamiques Incertains</p>
-    <div class="slide1-divider"></div>
-    <p class="slide1-method">Observateurs par Intervalles</p>
-  </div>
-
-  <div class="slide1-footer">Présentation ~ 8 minutes</div>
-  <div class="slide1-number">1</div>
-</div>
-""")
-
-# ╔═╡ db7855c4-f570-4c77-80e7-d4b215d341a7
-@htl("""
-<style>
-  .slide2-wrapper {
+  /* ---------- Cadre commun à toutes les slides ---------- */
+  .slide {
     position: relative;
     width: 100%;
     aspect-ratio: 16 / 9;
@@ -134,79 +27,492 @@ end
     overflow: hidden;
     font-family: Calibri, 'Segoe UI', sans-serif;
     box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  }
-   .bar-top {
-     position: absolute; 
-     top: 0; left: 0;
-     width: 100%; height: 1.5%;
-     background: #0F3460;
-    }
-   .bar-bottom {
-     position: absolute;
-     bottom: 0; left: 0;
-     width: 100%; height: 1.5%;
-     background: #0F3460;
-   } 
-  .bar-left {
-     position: absolute;
-     top: 1.5%; left: 0;
-     width: 0.9%; height: 97%;
-     background: #E94560;
-   } 
 
-  .slide2-title  {
-     position: absolute;
-     top: 1.5%; left: 2%;
-     width: 96%; height: 12%;
-     display: flex;
-     align-items: center; 
-     font-size: 2.2vw;
-     font-weight: 700;
-     background: #FFFFFF;
-   } 
-  .question-box  {
-     position: absolute;
-     top: 15%; left: 2%;
-     width: 94%; height: 22%;
-     background: #0F3460;
-     border-radius: 8px;
-     border: 2px solid #E94560;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-   }
-  .question-text {
-    font-size: 1.3vw;
+    /* Les tailles de texte sont relatives à la LARGEUR DE LA SLIDE (cqw),
+       pas à la fenêtre : le rendu est identique dans le notebook et en plein écran.
+       --k = échelle globale du texte : augmente-la pour tout agrandir. */
+    container-type: inline-size;
+    --k: 2.5cqw;
+  }
+  .slide .bar-top   { position: absolute; top: 0;    left: 0; width: 100%; height: 1.5%; background: #0F3460; }
+  .slide .bar-bottom { position: absolute; bottom: 0; left: 0; width: 100%; height: 1.5%; background: #0F3460; }
+  .slide .bar-left   { position: absolute; top: 1.5%; left: 0; width: 0.9%; height: 97%;  background: #E94560; }
+
+  .slide .slide-title {
+    position: absolute;
+    top: 1.5%; left: 2%;
+    width: 96%; height: 12%;
+    display: flex;
+    align-items: center;
+    font-size: calc(1.9 * var(--k));
     font-weight: 700;
-    color: #FFFFFF;
+    color: #1A1A2E;
+    background: #FFFFFF;
+  }
+  .slide .slide-body {
+    position: absolute;
+    top: 15%; left: 2%;
+    width: 96%; height: 75%;
+  }
+  .slide .slide-footer {
+    position: absolute;
+    bottom: 4%; left: 2%;
+    width: 96%;
+    font-size: calc(1.0 * var(--k));
+    color: #7F8C8D;
+    font-style: italic;
     text-align: center;
-    line-height: 1.6;
+  }
+  .slide .slide-number {
+    position: absolute;
+    bottom: 3%; right: 2%;
+    font-size: calc(1.1 * var(--k));
+    color: #556677;
+  }
+
+  /* ---------- Slide de titre (fond sombre) ---------- */
+  .slide.title-slide { background: #1A1A2E; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+  .title-slide .circle-top-right {
+    position: absolute; top: -8%; right: -4%;
+    width: 36%; aspect-ratio: 1; border-radius: 50%;
+    background: rgba(233, 69, 96, 0.18);
+    border: 1.5px solid rgba(233, 69, 96, 0.35);
+  }
+  .title-slide .circle-bottom-right {
+    position: absolute; bottom: -6%; right: 6%;
+    width: 20%; aspect-ratio: 1; border-radius: 50%;
+    background: rgba(15, 52, 96, 0.55);
+    border: 1.5px solid rgba(15, 52, 96, 0.7);
+  }
+  .title-slide .bottom-line {
+    position: absolute; bottom: 10%; left: 0;
+    width: 100%; height: 0.9%;
+    background: #E94560;
+  }
+  .title-slide .content  { position: absolute; top: 18%; left: 5%; width: 75%; }
+  .title-slide .main-title {
+    font-size: calc(3.2 * var(--k)); font-weight: 700; color: #FFFFFF;
+    line-height: 1.15; margin: 0 0 2.5% 0;
+  }
+  .title-slide .subtitle { font-size: calc(1.4 * var(--k)); color: #AABBCC; margin: 0 0 4% 0; }
+  .title-slide .divider  {
+    width: 18%; height: 0.5%; background: #E94560;
+    margin-bottom: 3%; border-radius: 2px;
+  }
+  .title-slide .method   { font-size: calc(1.5 * var(--k)); color: #AABBCC; font-style: italic; }
+  .title-slide .footer   { position: absolute; bottom: 3%; left: 5%; font-size: calc(1.1 * var(--k)); color: #556677; }
+
+  /* ---------- Boîte bleue mise en avant ---------- */
+  .slide .highlight-box {
+    background: #0F3460;
+    border-radius: 8px;
+    border: 2px solid #E94560;
+    color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
     padding: 0 3%;
+  }
+  .slide .highlight-box .label {
+    font-size: calc(1.1 * var(--k)); font-weight: 700; color: #E94560; margin: 0 0 2% 0;
+  }
+  .slide .highlight-box .question {
+    font-size: calc(1.3 * var(--k)); font-weight: 700; line-height: 1.6; margin: 0;
+  }
+  .slide .highlight-box .equations { font-size: calc(0.9 * var(--k)); }
+  .slide .highlight-box .equations * { color: #FFFFFF; }
+
+  /* ---------- Cartes ---------- */
+  .slide .cards-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .slide .card {
+    width: 30%; height: 100%;
+    background: #FFFFFF;
+    border-radius: 8px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .slide .card-bar   { width: 100%; height: 12%; border-radius: 6px 6px 0 0; }
+  .slide .card-title {
+    font-size: calc(1.3 * var(--k)); font-weight: 700; color: #1A1A2E;
+    text-align: center; margin: 8% 0 4% 0;
+  }
+  .slide .card-sub   { font-size: calc(1.0 * var(--k)); color: #7F8C8D; font-style: italic; text-align: center; }
+  .slide .arrow      { font-size: calc(2.5 * var(--k)); color: #7F8C8D; }
+
+  /* ---------- Mise en page en deux colonnes ---------- */
+  .slide .two-columns {
+    display: grid;
+    grid-template-columns: 2fr 3fr;   /* colonne gauche : 40 %, droite : 60 % */
+    gap: 3%;
+    height: 100%;
+    padding: 0 1%;
+    box-sizing: border-box;
+  }
+  .slide .column-image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+  .slide .column-image img {
+    max-width: 100%;
+    max-height: 75%;
+    object-fit: contain;
+  }
+  .slide .caption {
+    font-size: calc(1.0 * var(--k)); color: #7F8C8D; font-style: italic;
+    text-align: center; margin: 4% 0 0 0;
+  }
+
+  /* ---------- Cartes « modèle » (nom + équations) ---------- */
+  .slide .model-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 1fr;
+    gap: 10px;
+    min-height: 0;
+  }
+  .slide .model-card {
+    background: #FFFFFF;
+    border-radius: 8px;
+    border-left: 4px solid #0F3460;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    box-sizing: border-box;
+    padding: 3% 4%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .slide .model-name { font-size: calc(1.0 * var(--k)); font-weight: 700; margin: 0 0 2% 0; }
+  .slide .model-eqs  { font-size: calc(0.7 * var(--k)); color: #1A1A2E; overflow-x: auto; }
+  .slide .model-eqs .markdown, .slide .model-eqs p { margin: 0; padding: 0; }
+
+  /* ---------- Mode présentation plein écran ---------- */
+  .slide { cursor: zoom-in; }
+  .slide-presenter { display: none; }
+  .slide-presenter:fullscreen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+  }
+  .slide-presenter:fullscreen .slide {
+    width: min(100vw, calc(100vh * 16 / 9));
+    max-width: none;
     margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    cursor: default;
   }
 </style>
-<div class="slide2-wrapper">
-    <div class="bar-top"> </div>
-    <div class="bar-bottom"> </div>
-    <div class="bar-left"> </div>
-    <div class="slide2-title"> Le Probleme Centrale</div>
-     
-    <div class="question-box">
-     <p class="question-text">
-     Comment estimer l'état d'un système dynamique incertain
-      lorsque ses variables ne sont <u>PAS</u> directement mesurables ?
-    </p>
-  </div>
-     
-</div>
+
+<script>
+  // Double-clic sur une slide → plein écran.
+  // ← / → (ou PageUp / PageDown / Espace) → slide précédente / suivante.
+  // Échap → retour au notebook.
+  const presenter = document.createElement("div");
+  presenter.className = "slide-presenter";
+  document.body.appendChild(presenter);
+  let index = 0;
+
+  const allSlides = () =>
+    Array.from(document.querySelectorAll(".slide"))
+      .filter(s => !presenter.contains(s));
+
+  const show = (i) => {
+    const slides = allSlides();
+    if (i < 0 || i >= slides.length) return;
+    index = i;
+    presenter.replaceChildren(slides[i].cloneNode(true));
+  };
+
+  const onDblClick = (e) => {
+    const s = e.target.closest(".slide");
+    if (!s || presenter.contains(s)) return;
+    show(allSlides().indexOf(s));
+    presenter.requestFullscreen().catch(() => {});
+  };
+
+  const onKey = (e) => {
+    if (document.fullscreenElement !== presenter) return;
+    const n = allSlides().length;
+    let target;
+    if (["ArrowRight", "ArrowDown", "PageDown", " "].includes(e.key)) target = index + 1;
+    else if (["ArrowLeft", "ArrowUp", "PageUp"].includes(e.key))     target = index - 1;
+    else if (e.key === "Home") target = 0;
+    else if (e.key === "End")  target = n - 1;
+    else return;
+    e.preventDefault();
+    e.stopPropagation();
+    show(target);
+  };
+
+  document.addEventListener("dblclick", onDblClick);
+  document.addEventListener("keydown", onKey, true);
+
+  // Nettoyage quand Pluto ré-exécute la cellule
+  invalidation.then(() => {
+    document.removeEventListener("dblclick", onDblClick);
+    document.removeEventListener("keydown", onKey, true);
+    presenter.remove();
+  });
+</script>
 """)
 
-# ╔═╡ 86be2eef-b800-4763-9867-4a55f0971e2c
+# ╔═╡ 4ce5b8e5-4dbe-46a7-9735-50577a4cd162
+# Composants réutilisables pour construire les slides.
+begin
+	"""
+	    slide(title, body; footer=nothing, number=nothing)
 
+	Slide standard : barres décoratives, bandeau de titre, contenu et pied de page optionnel.
+	`body` peut être n'importe quel objet affichable (`@htl`, `md`, un graphique…).
+	"""
+	function slide(title, body; footer=nothing, number=nothing)
+		@htl("""
+		<div class="slide">
+		  <div class="bar-top"></div>
+		  <div class="bar-bottom"></div>
+		  <div class="bar-left"></div>
+		  <div class="slide-title">$title</div>
+		  <div class="slide-body">$body</div>
+		  $(footer === nothing ? nothing : @htl("<div class='slide-footer'>$footer</div>"))
+		  $(number === nothing ? nothing : @htl("<div class='slide-number'>$number</div>"))
+		</div>
+		""")
+	end
+
+	"""
+	    title_slide(title, subtitle, method; footer="", number=1)
+
+	Slide de titre sur fond sombre.
+	"""
+	function title_slide(title, subtitle, method; footer="", number=1)
+		@htl("""
+		<div class="slide title-slide">
+		  <div class="circle-top-right"></div>
+		  <div class="circle-bottom-right"></div>
+		  <div class="bottom-line"></div>
+		  <div class="content">
+		    <h1 class="main-title">$title</h1>
+		    <p class="subtitle">$subtitle</p>
+		    <div class="divider"></div>
+		    <p class="method">$method</p>
+		  </div>
+		  <div class="footer">$footer</div>
+		  <div class="slide-number">$number</div>
+		</div>
+		""")
+	end
+
+	"""
+	    card(title, sub; color="#E94560")
+
+	Carte blanche avec une barre de couleur en haut.
+	Pour un retour à la ligne dans le titre : `card(@htl("Ligne 1<br>Ligne 2"), ...)`.
+	"""
+	card(title, sub; color="#E94560") = @htl("""
+		<div class="card" style="border: 2px solid $color">
+		  <div class="card-bar" style="background: $color"></div>
+		  <p class="card-title">$title</p>
+		  <p class="card-sub">$sub</p>
+		</div>
+		""")
+
+	"Flèche entre deux cartes."
+	arrow() = @htl("""<div class="arrow">→</div>""")
+
+	"""
+	    highlight_box(content; style="")
+
+	Boîte bleue bordée de rouge. `style` sert à la positionner (largeur, hauteur, marges…).
+	"""
+	highlight_box(content; style="") = @htl("""
+		<div class="highlight-box" style=$style>$content</div>
+		""")
+
+	"""
+	    model_card(name, equations; color="#0F3460")
+
+	Petite carte avec le nom d'un modèle (en couleur) et ses équations (un bloc `md`).
+	"""
+	model_card(name, equations; color="#0F3460") = @htl("""
+		<div class="model-card" style="border-left-color: $color">
+		  <p class="model-name" style="color: $color">$name</p>
+		  <div class="model-eqs">$equations</div>
+		</div>
+		""")
+
+	"""
+	    image(path; alt="")
+
+	Insère une image locale (chemin relatif au dossier du notebook), encodée en base64.
+	Fonctionne même si le chemin contient des espaces, contrairement à `LocalResource`.
+	"""
+	function image(path; alt="")
+		file = joinpath(@__DIR__, path)
+		ext = lowercase(lstrip(splitext(file)[2], '.'))
+		mime = ext == "svg" ? "image/svg+xml" : ext == "jpg" ? "image/jpeg" : "image/$ext"
+		src = "data:$mime;base64," * base64encode(read(file))
+		@htl("""<img src=$src alt=$alt>""")
+	end
+
+	nothing
+end
+
+# ╔═╡ 048e684e-d9df-11f1-8332-71bfd79ee45b
+title_slide(
+	"Estimation Robuste d'État",
+	"pour les Systèmes Dynamiques Incertains",
+	"Observateurs par Intervalles";
+	footer = "Présentation ~ 8 minutes",
+	number = 1,
+)
+
+# ╔═╡ 85d5c39a-99a7-4fc6-b6db-dee643027efc
+let
+	# ---------- Colonne gauche : schéma draw.io ----------
+	# L'image est dans le dossier `images/` à côté du notebook.
+	schema = image("images/modele.jpg"; alt = "Schéma du système")
+
+	# ---------- Colonne droite : exemples de modèles EDO ----------
+	# Les équations sont écrites en Markdown : Pluto les rend avec son propre MathJax.
+	tumeur = md"""
+	```math
+	\begin{cases}
+	s'(t) = \rho\left(1 - \frac{s(t)+m\,r(t)}{K}\right)s(t) - \alpha C\, s(t)\\
+	r'(t) = \rho\left(1 - \frac{s(t)+m\,r(t)}{K}\right)r(t) - \beta \frac{s(t)}{K}\,r(t)
+	\end{cases}
+	```
+	"""
+
+	lotka_volterra = md"""
+	```math
+	\begin{cases}
+	x'(t) = a\,x(t) - b\,x(t)\,y(t)\\
+	y'(t) = c\,x(t)\,y(t) - d\,y(t)
+	\end{cases}
+	```
+	"""
+
+	sirs = md"""
+	```math
+	\begin{cases}
+	S'(t) = -\beta S(t)\,I(t) + \gamma R(t)\\
+	I'(t) = \beta S(t)\,I(t) - \delta I(t)\\
+	R'(t) = \delta I(t) - \gamma R(t)
+	\end{cases}
+	```
+	"""
+
+	chemostat = md"""
+	```math
+	\begin{cases}
+	s'(t) = D\,(s_{in} - s(t)) - k\,\mu(s(t))\,x(t)\\
+	x'(t) = \big(\mu(s(t)) - D\big)\,x(t)
+	\end{cases}
+	```
+	"""
+
+	slide(
+		"Système Dynamique Incertain",
+		@htl("""
+		<div class="two-columns">
+		  <div class="column-image">
+		    $schema
+		    <p class="caption">Entrées → système → sorties mesurées</p>
+		  </div>
+		  <div class="model-grid">
+		    $(model_card("Cellules sensibles / résistantes", tumeur;    color = "#E94560"))
+		    $(model_card("Proie – prédateur (Lotka–Volterra)", lotka_volterra; color = "#F39C12"))
+		    $(model_card("Épidémie (SIRS)",                   sirs;       color = "#2ECC71"))
+		    $(model_card("Chémostat (bioprocédé)",           chemostat; color = "#0F3460"))
+		  </div>
+		</div>
+		"""),
+		number=2
+	)
+end
+
+# ╔═╡ db7855c4-f570-4c77-80e7-d4b215d341a7
+slide(
+	"Le Problème Central",
+	@htl("""
+	$(highlight_box(
+		@htl("""
+		<p class="question">
+		  Comment estimer l'état d'un système dynamique incertain
+		  lorsque ses variables ne sont <u>PAS</u> directement mesurables ?
+		</p>
+		""");
+		style = "height: 29%;",
+	))
+	<div class="cards-container" style="height: 53%; margin-top: 4%;">
+	  $(card(@htl("Système<br>d'EDO"), "Variables cachées"; color = "#E94560"))
+	  $(arrow())
+	  $(card(@htl("Incertitudes<br>+ Bruits"), "Modèle imparfait"; color = "#F39C12"))
+	  $(arrow())
+	  $(card(@htl("Estimation<br>Robuste"), "Notre approche"; color = "#2ECC71"))
+	</div>
+	""");
+	footer = "Un problème classique commun à de nombreux domaines scientifiques",
+	number=3
+)
+
+# ╔═╡ 86be2eef-b800-4763-9867-4a55f0971e2c
+slide(
+	"Méthodes Classiques: Puissantes mais Limitées",
+	@htl(""),
+	number=4
+)
+
+# ╔═╡ 418d26e3-bb8f-4fac-a88f-2afcf3e856dc
+slide(
+	"Notre Solution : L'Observateur par Intervalles",
+	@htl(""),
+	number=5
+)
+
+# ╔═╡ e140e199-1483-4960-b25a-4fb98da48e30
+let 
+	observer_concept = image("images/observer_concept.png"; alt = "concept d'observateur")
+	
+
+	slide(
+		"Qu'est ce qu'un observateur",
+		@htl("""
+		<div class="two-columns">
+		  <div class="column-image">
+		    $observer_concept
+		    <p class="caption">fig: Concepte d'observateurs</p>
+			  <p>Un observateur est donc un syteme dynamique dont l'entrée est une  </p>
+		  </div>
+		  <div class="model-grid">
+		  </div>
+		</div>
+		"""),
+		number=2
+	)
+end 
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
@@ -221,7 +527,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.12.2"
 manifest_format = "2.0"
-project_hash = "3f7a5bdf40b55b2c6f61522f5caec8fb2f2962b1"
+project_hash = "af4bb0016c595f3f787a3e44885bcbd52796bf0f"
 
 [[deps.AbstractPlutoDingetjes]]
 git-tree-sha1 = "e71ee7b4aa06b045259a7d6101e1cb45ad140bce"
@@ -447,8 +753,13 @@ version = "1.64.0+1"
 
 # ╔═╡ Cell order:
 # ╟─01a49139-b2d9-48a2-b737-7685e6e3ea2a
-# ╠═048e684e-d9df-11f1-8332-71bfd79ee45b
-# ╠═db7855c4-f570-4c77-80e7-d4b215d341a7
+# ╟─94a20083-978e-492b-b056-77ed64687cb5
+# ╟─4ce5b8e5-4dbe-46a7-9735-50577a4cd162
+# ╟─048e684e-d9df-11f1-8332-71bfd79ee45b
+# ╟─85d5c39a-99a7-4fc6-b6db-dee643027efc
+# ╟─db7855c4-f570-4c77-80e7-d4b215d341a7
 # ╠═86be2eef-b800-4763-9867-4a55f0971e2c
+# ╠═418d26e3-bb8f-4fac-a88f-2afcf3e856dc
+# ╠═e140e199-1483-4960-b25a-4fb98da48e30
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
