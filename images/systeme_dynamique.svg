@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" width="640" height="200"
+     font-family="Helvetica, Arial, sans-serif" fill="none" stroke="#000">
+  <!-- Titre du bloc -->
+  <text x="320" y="38" text-anchor="middle" font-size="15" font-weight="bold"
+        fill="#000" stroke="none">système</text>
+
+  <!-- Bloc système -->
+  <rect x="220" y="52" width="200" height="110" rx="14" ry="14" stroke-width="1.3" fill="#fff"/>
+
+  <!-- dx/dt = f(x, u) -->
+  <g fill="#000" stroke="none" font-size="20">
+    <text x="283" y="98"  text-anchor="middle">dx</text>
+    <text x="283" y="130" text-anchor="middle">dt</text>
+    <text x="345" y="114" text-anchor="middle">= f(x)</text>
+  </g>
+  <line x1="268" y1="107" x2="298" y2="107" stroke-width="1.5"/>
+
+  <!-- Entrée u(t) -->
+  <!-- <line x1="40" y1="107" x2="208" y2="107" stroke-width="2"/>
+  <path d="M206,101 L220,107 L206,113 z" fill="#000" stroke="none"/>
+  <text x="125" y="95" text-anchor="middle" font-size="14" fill="#000" stroke="none">u(t)</text>
+  <text x="125" y="128" text-anchor="middle" font-size="12" font-style="italic"
+        fill="#555" stroke="none">entrées</text> -->
+
+  <!-- Sortie y = h(x) -->
+  <line x1="420" y1="107" x2="590" y2="107" stroke-width="2"/>
+  <path d="M588,101 L602,107 L588,113 z" fill="#000" stroke="none"/>
+  <text x="510" y="95" text-anchor="middle" font-size="14" fill="#000" stroke="none">y = h(x)</text>
+  <text x="510" y="128" text-anchor="middle" font-size="12" font-style="italic"
+        fill="#555" stroke="none">mesures</text>
+
+  <!-- État caché x (non mesuré) -->
+  <line x1="320" y1="162" x2="320" y2="188" stroke-width="1.3" stroke-dasharray="6 4"/>
+  <text x="330" y="186" font-size="12" font-style="italic" fill="#555" stroke="none">état x(t) non mesuré</text>
+</svg>

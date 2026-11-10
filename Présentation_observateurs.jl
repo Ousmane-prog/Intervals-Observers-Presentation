@@ -200,6 +200,62 @@ end
   .slide .model-name { font-size: calc(1.0 * var(--k)); font-weight: 700; margin: 0 0 2% 0; }
   .slide .model-eqs  { font-size: calc(0.7 * var(--k)); color: #1A1A2E; overflow-x: auto; }
   .slide .model-eqs .markdown, .slide .model-eqs p { margin: 0; padding: 0; }
+  .slide .model-legend {
+    font-size: calc(0.6 * var(--k)); color: #7F8C8D; font-style: italic;
+    margin: 2% 0 0 0; line-height: 1.3;
+  }
+
+  /* Colonne avec un titre suivi d'une grille de cartes */
+  .slide .column-stack {
+    display: flex; flex-direction: column; gap: 8px; min-height: 0;
+  }
+  .slide .column-stack .model-grid { flex: 1; }
+  .slide .column-heading {
+    font-size: calc(0.9 * var(--k)); font-weight: 700; color: #0F3460; margin: 0;
+  }
+  /* Grille d'une seule colonne : cartes empilées, pleine largeur */
+  .slide .model-grid.single { grid-template-columns: 1fr; }
+
+  /* ---------- Panneau de texte (Markdown + LaTeX) ---------- */
+  .slide .text-panel {
+    background: #FFFFFF;
+    border-radius: 8px;
+    border-left: 4px solid #E94560;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    box-sizing: border-box;
+    padding: 3% 4%;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #1A1A2E;
+    font-size: calc(0.7 * var(--k));   /* taille du texte du panneau */
+    line-height: 1.35;
+  }
+  .slide .text-panel .markdown { font-size: inherit; margin: 0; padding: 0; }
+  .slide .text-panel .markdown p,
+  .slide .text-panel .markdown li {
+    font-size: inherit; line-height: 1.35; margin: 0 0 0.45em 0;
+  }
+  .slide .text-panel .markdown h3 {
+    font-size: 1.4em; font-weight: 700; color: #0F3460;
+    margin: 0 0 0.5em 0; padding: 0; border: none;
+  }
+  .slide .text-panel .markdown h4 {
+    font-size: 1.15em; font-weight: 700; color: #E94560;
+    margin: 0.6em 0 0.3em 0; padding: 0; border: none;
+  }
+  .slide .text-panel .markdown ul { margin: 0; padding-left: 1.2em; }
+  .slide .text-panel .markdown strong { color: #0F3460; }
+
+  /* Variante sans carte : même mise en forme du texte, sans fond ni bordure */
+  .slide .text-panel.plain {
+    background: none; border: none; box-shadow: none;
+    padding: 0; flex: 0 0 auto; overflow: visible;
+  }
+  /* Quand la colonne contient aussi du texte, l'image laisse de la place */
+  .slide .column-image:has(.text-panel) img { max-height: 50%; }
 
   /* ---------- Mode présentation plein écran ---------- */
   .slide { cursor: zoom-in; }
@@ -350,10 +406,11 @@ begin
 
 	Petite carte avec le nom d'un modèle (en couleur) et ses équations (un bloc `md`).
 	"""
-	model_card(name, equations; color="#0F3460") = @htl("""
+	model_card(name, equations; color="#0F3460", legend=nothing) = @htl("""
 		<div class="model-card" style="border-left-color: $color">
 		  <p class="model-name" style="color: $color">$name</p>
 		  <div class="model-eqs">$equations</div>
+		  $(legend === nothing ? nothing : @htl("<p class='model-legend'>$legend</p>"))
 		</div>
 		""")
 
@@ -387,7 +444,8 @@ title_slide(
 let
 	# ---------- Colonne gauche : schéma draw.io ----------
 	# L'image est dans le dossier `images/` à côté du notebook.
-	schema = image("images/modele.jpg"; alt = "Schéma du système")
+	# schema = image("images/modele.jpg"; alt = "Schéma du système")
+	schema = image("images/systeme_dynamique.svg"; alt = "Système dynamique")
 
 	# ---------- Colonne droite : exemples de modèles EDO ----------
 	# Les équations sont écrites en Markdown : Pluto les rend avec son propre MathJax.
@@ -400,14 +458,14 @@ let
 	```
 	"""
 
-	lotka_volterra = md"""
-	```math
-	\begin{cases}
-	x'(t) = a\,x(t) - b\,x(t)\,y(t)\\
-	y'(t) = c\,x(t)\,y(t) - d\,y(t)
-	\end{cases}
-	```
-	"""
+	# lotka_volterra = md"""
+	# ```math
+	# \begin{cases}
+	# x'(t) = a\,x(t) - b\,x(t)\,y(t)\\
+	# y'(t) = c\,x(t)\,y(t) - d\,y(t)
+	# \end{cases}
+	# ```
+	# """
 
 	sirs = md"""
 	```math
@@ -418,15 +476,19 @@ let
 	\end{cases}
 	```
 	"""
-
-	chemostat = md"""
-	```math
-	\begin{cases}
-	s'(t) = D\,(s_{in} - s(t)) - k\,\mu(s(t))\,x(t)\\
-	x'(t) = \big(\mu(s(t)) - D\big)\,x(t)
-	\end{cases}
-	```
+	probleme = md"""
+	### Problématique
+	À partir des **sorties** ``y(t)`` (les mesures), on cherche à **estimer** (ou « identifier ») les **variables** ``x(t)`` ou les **paramètres** inconnus.
 	"""
+
+	# chemostat = md"""
+	# ```math
+	# \begin{cases}
+	# s'(t) = D\,(s_{in} - s(t)) - k\,\mu(s(t))\,x(t)\\
+	# x'(t) = \big(\mu(s(t)) - D\big)\,x(t)
+	# \end{cases}
+	# ```
+	# """
 
 	slide(
 		"Système Dynamique Incertain",
@@ -434,13 +496,19 @@ let
 		<div class="two-columns">
 		  <div class="column-image">
 		    $schema
-		    <p class="caption">Entrées → système → sorties mesurées</p>
+		    <p class="caption">Système dynamique et sorties mesurées</p>
+		    <div class="text-panel plain">$probleme</div>
 		  </div>
-		  <div class="model-grid">
-		    $(model_card("Cellules sensibles / résistantes", tumeur;    color = "#E94560"))
-		    $(model_card("Proie – prédateur (Lotka–Volterra)", lotka_volterra; color = "#F39C12"))
-		    $(model_card("Épidémie (SIRS)",                   sirs;       color = "#2ECC71"))
-		    $(model_card("Chémostat (bioprocédé)",           chemostat; color = "#0F3460"))
+		  <div class="column-stack">
+		    <p class="column-heading">Exemples de modèles</p>
+		    <div class="model-grid single">
+		      $(model_card("Cellules sensibles / résistantes au traitement", tumeur;
+		          color = "#E94560",
+		          legend = @htl("<i>s</i>, <i>r</i> : cellules sensibles / résistantes · <i>C</i> : traitement")))
+		      $(model_card("Épidémie (SIRS)", sirs;
+		          color = "#2ECC71",
+		          legend = @htl("<i>S</i>, <i>I</i>, <i>R</i> : individus susceptibles, infectés, rétablis")))
+		    </div>
 		  </div>
 		</div>
 		"""),
@@ -449,48 +517,57 @@ let
 end
 
 # ╔═╡ db7855c4-f570-4c77-80e7-d4b215d341a7
-slide(
-	"Le Problème Central",
-	@htl("""
-	$(highlight_box(
-		@htl("""
-		<p class="question">
-		  Comment estimer l'état d'un système dynamique incertain
-		  lorsque ses variables ne sont <u>PAS</u> directement mesurables ?
-		</p>
-		""");
-		style = "height: 29%;",
-	))
-	<div class="cards-container" style="height: 53%; margin-top: 4%;">
-	  $(card(@htl("Système<br>d'EDO"), "Variables cachées"; color = "#E94560"))
-	  $(arrow())
-	  $(card(@htl("Incertitudes<br>+ Bruits"), "Modèle imparfait"; color = "#F39C12"))
-	  $(arrow())
-	  $(card(@htl("Estimation<br>Robuste"), "Notre approche"; color = "#2ECC71"))
-	</div>
-	""");
-	footer = "Un problème classique commun à de nombreux domaines scientifiques",
-	number=3
-)
-
-# ╔═╡ 86be2eef-b800-4763-9867-4a55f0971e2c
-slide(
-	"Méthodes Classiques: Puissantes mais Limitées",
-	@htl(""),
-	number=4
-)
-
-# ╔═╡ 418d26e3-bb8f-4fac-a88f-2afcf3e856dc
-slide(
-	"Notre Solution : L'Observateur par Intervalles",
-	@htl(""),
-	number=5
-)
+# slide(
+# 	"Le Problème Central",
+# 	@htl("""
+# 	$(highlight_box(
+# 		@htl("""
+# 		<p class="question">
+# 		  Comment estimer l'état d'un système dynamique incertain
+# 		  lorsque ses variables ne sont <u>PAS</u> directement mesurables ?
+# 		</p>
+# 		""");
+# 		style = "height: 29%;",
+# 	))
+# 	<div class="cards-container" style="height: 53%; margin-top: 4%;">
+# 	  $(card(@htl("Système<br>d'EDO"), "Variables cachées"; color = "#E94560"))
+# 	  $(arrow())
+# 	  $(card(@htl("Incertitudes<br>+ Bruits"), "Modèle imparfait"; color = "#F39C12"))
+# 	  $(arrow())
+# 	  $(card(@htl("Estimation<br>Robuste"), "Notre approche"; color = "#2ECC71"))
+# 	</div>
+# 	""");
+# 	footer = "Un problème classique commun à de nombreux domaines scientifiques",
+# 	number=3
+# )
 
 # ╔═╡ e140e199-1483-4960-b25a-4fb98da48e30
 let 
 	observer_concept = image("images/observer_concept.png"; alt = "concept d'observateur")
-	
+
+	# Colonne gauche : définition d'un observateur
+	principe = md"""
+	### Principe
+
+	Un **observateur** est un système dynamique dont l'**entrée** est le vecteur ``y(\cdot)`` des mesures acquises au cours du temps, et dont l'**état** est une estimation ``\hat{x}(t)`` de l'état réel (inconnu) ``x(t)`` du système à l'instant ``t``.
+	"""
+
+	# Colonne droite : observabilité (Markdown, maths entre ``…`` ou en bloc ```math)
+	observabilite = md"""
+	### Est-ce toujours possible ?
+
+	Soit une trajectoire solution ``x(\cdot)`` d'un modèle dynamique
+	```math
+	\frac{dx}{dt} = f(x), \qquad x(0) = x_0 \in \mathbb{R}^n
+	```
+	et une « observation » ``y(t) = h(x(t)) \in \mathbb{R}^p``, ``t \geq 0``.
+
+	**N.B.** Les fonctions ``f : \mathbb{R}^n \to \mathbb{R}^n`` et ``h : \mathbb{R}^n \to \mathbb{R}^p`` sont connues, ``x_0`` est **inconnu**.
+
+	#### Définitions
+	- ``x_0^a`` et ``x_0^b`` sont **indiscernables** si leurs solutions ``x^a(\cdot)``, ``x^b(\cdot)`` vérifient ``h(x^a(t)) = h(x^b(t)), \ \forall t \geq 0``
+	- le système ``(f, h)`` est **observable** s'il n'existe pas de paire indiscernable.
+	"""
 
 	slide(
 		"Qu'est ce qu'un observateur",
@@ -498,16 +575,73 @@ let
 		<div class="two-columns">
 		  <div class="column-image">
 		    $observer_concept
-		    <p class="caption">fig: Concepte d'observateurs</p>
-			  <p>Un observateur est donc un syteme dynamique dont l'entrée est une  </p>
+		    <p class="caption">Fig. : Concept d'observateur</p>
+		    <div class="text-panel plain">$principe</div>
 		  </div>
-		  <div class="model-grid">
-		  </div>
+		  <div class="text-panel">$observabilite</div>
 		</div>
 		"""),
-		number=2
+		number=4
 	)
 end 
+
+# ╔═╡ 05407d44-dc9c-45b9-853e-9e6ae7583e07
+let
+	# Colonne gauche : système, observabilité, famille d'observateurs candidats
+	gauche = md"""
+	### Rappel : notre système
+	```math
+	(S_0) : \begin{cases}
+	\dot{x}(t) = f(t, x(t)), & x(0) = x_0 \\
+	y(t) = h(t, x(t))
+	\end{cases}
+	```
+
+	**Définition 1 (Observabilité).** Le système ``(S_0)`` est observable si et seulement si l'application ``\Phi : x_0 \in \mathcal{X} \longmapsto \{y(t)\}_{t \geq 0}`` est injective.
+
+	Considérons une famille de systèmes paramétrée par ``K \in \mathcal{K}`` :
+	```math
+	(\hat{S}_K) : \begin{cases}
+	\dot{z}(t) = g_K(t, z(t), y(t)), & z(0) = z_0 \\
+	\hat{x}(t) = \ell_K(t, z(t), y(t))
+	\end{cases}
+	```
+	où ``z(t) \in \mathcal{Z} \subset \mathbb{R}^m`` est l'**état interne**.
+	"""
+
+	# Colonne droite : système couplé et définitions d'observateur
+	droite = md"""
+	### Système couplé ``(S_0, \hat{S}_K)``
+	```math
+	\begin{cases}
+	\dot{x}(t) = f(t, x(t)), & x(0) = x_0 \\
+	\dot{z}(t) = g_K\big(t, z(t), h(t, x(t))\big), & z(0) = z_0 \\
+	\hat{x}(t) = \ell_K\big(t, z(t), h(t, x(t))\big)
+	\end{cases}
+	```
+
+	**Définition 2 (Observateur).** Le système ``(\hat{S}_K)`` est un observateur si ``\|\hat{x}(t) - x(t)\| \to 0`` quand ``t \to \infty``.
+
+	**Définition 3 (Observateur exponentiel).** ``(\hat{S}_K)`` est un observateur exponentiel si : ``\forall \lambda > 0``, ``\exists K_\lambda`` tel que ``(S_0, \hat{S}_{K_\lambda})`` vérifie, pour tout ``(x_0, z_0) \in \mathcal{X} \times \mathcal{Z}`` et tout ``t \geq 0`` :
+	```math
+	\|\hat{x}(t) - x(t)\| \leq e^{-\lambda t}\, \|\hat{x}(0) - x(0)\|
+	```
+	"""
+
+	slide(
+		"Observabilité et observateurs",
+		@htl("""
+		<div class="two-columns" style="grid-template-columns: 1fr 1fr;">
+		  <div class="text-panel" style="font-size: calc(0.62 * var(--k));">$gauche</div>
+		  <div class="text-panel" style="font-size: calc(0.62 * var(--k)); border-left-color: #0F3460;">$droite</div>
+		</div>
+		"""),
+		number = 5,
+	)
+end
+
+# ╔═╡ 0246ffc1-7971-4fad-b056-7adb81951a70
+
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -758,8 +892,8 @@ version = "1.64.0+1"
 # ╟─048e684e-d9df-11f1-8332-71bfd79ee45b
 # ╟─85d5c39a-99a7-4fc6-b6db-dee643027efc
 # ╟─db7855c4-f570-4c77-80e7-d4b215d341a7
-# ╠═86be2eef-b800-4763-9867-4a55f0971e2c
-# ╠═418d26e3-bb8f-4fac-a88f-2afcf3e856dc
-# ╠═e140e199-1483-4960-b25a-4fb98da48e30
+# ╟─e140e199-1483-4960-b25a-4fb98da48e30
+# ╟─05407d44-dc9c-45b9-853e-9e6ae7583e07
+# ╠═0246ffc1-7971-4fad-b056-7adb81951a70
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
