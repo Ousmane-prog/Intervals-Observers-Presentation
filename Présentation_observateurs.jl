@@ -641,11 +641,43 @@ let
 end
 
 # ╔═╡ 0246ffc1-7971-4fad-b056-7adb81951a70
-slide("example de systeme",
+let 
+	systme = md"""
+	considerons le sytème  =
+	```math 
+		(S_0) =	\begin{cases}
+					\dot{x} = Ax + (Bu)\\ 
+					y = Cx 
+				\end{cases}
+	``` 
+	"""
+	Proposition = md"""
+		#### Proposition:
+		Si le paire (A, C) est observable, alors il existe un vecteur de gain K tq:
+		```math
+		(\hat{S_0}):  \dot{\hat{x}} = A\hat{x} + (Bu) + K(̂C\hat{x} - y)			
+		```
+		est un observateur de $(S_0)$
+		"""
+slide("Observateur de Luenberger",
 	 @htl("""
+		  $systme
+		  $Proposition
 		  """),
 	 number=6
 	 )
+end 
+
+# ╔═╡ 30941fd1-e59f-490d-9c44-6ce8526f8113
+let
+	phrase = md""" on peut dire que l'on ne connait la condition initiale $x_0$, mais il est tout à raisonable de qu'il appartient à un compact et est donc compris entre un $x_0^{+}$ et un $x_0^{-}$. Si le système est mtonone alors on est sur d'avoir un observateur qui reste tout le au dessus et un autre qui rest tout en dessous. **Cooperativité** et **monotonie**
+	"""
+	slide("Observateur par intervalle ",
+		 @htl("""
+			  $phrase
+			  """),
+		 number=7)
+end 
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -919,6 +951,7 @@ uuid = "23338594-aafe-5451-b93e-139f81909106"
 # ╟─db7855c4-f570-4c77-80e7-d4b215d341a7
 # ╟─e140e199-1483-4960-b25a-4fb98da48e30
 # ╟─05407d44-dc9c-45b9-853e-9e6ae7583e07
-# ╠═0246ffc1-7971-4fad-b056-7adb81951a70
+# ╟─0246ffc1-7971-4fad-b056-7adb81951a70
+# ╟─30941fd1-e59f-490d-9c44-6ce8526f8113
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

@@ -11,7 +11,7 @@
   <g fill="#000" stroke="none" font-size="20">
     <text x="283" y="98"  text-anchor="middle">dx</text>
     <text x="283" y="130" text-anchor="middle">dt</text>
-    <text x="345" y="114" text-anchor="middle">= f(x)</text>
+    <text x="345" y="114" text-anchor="middle">= f(x, p)</text>
   </g>
   <line x1="268" y1="107" x2="298" y2="107" stroke-width="1.5"/>
 
